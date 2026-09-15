@@ -305,14 +305,14 @@ c255 -203 350 -449 267 -689 -20 -58 -55 -127 -70 -141 -10 -10 -80 -120 -80
       <h2>How the dash works</h2>
       <p>Fifty points wins it. Points come from running, and from what is on the table. The first team to fifty ends the race for everyone.</p>
       <div class="rules">
-        <div><span>1 km run</span><span>1 point</span></div>
+        <div><span>0.5 km lap</span><span>0.5 point</span></div>
         <div><span>1 beer</span><span>1 point</span></div>
         <div><span>1 donut</span><span>1 point</span></div>
         <div><span>1 bottle of wine</span><span>6 points</span></div>
       </div>
       <div class="facts">
         <div><span class="k">Target</span><span class="v">50 points</span></div>
-        <div><span class="k">Loop</span><span class="v">1.00 km &middot; flat</span></div>
+        <div><span class="k">Loop</span><span class="v">0.50 km &middot; flat</span></div>
         <div><span class="k">Start</span><span class="v">10:00 sharp</span></div>
         <div><span class="k">Base</span><span class="v">IMD, Ch. de Bellerive</span></div>
       </div>
@@ -380,7 +380,8 @@ c255 -203 350 -449 267 -689 -20 -58 -55 -127 -70 -141 -10 -10 -80 -120 -80
 /* =====================================================================
    STRAY 01 — DONUT DASH · points board
    ---------------------------------------------------------------------
-   Scoring: 1 km = 1 point. 1 beer = 1 point. 1 donut = 1 point.
+   Scoring: one lap of the 0.5 km track = 0.5 point. 1 beer = 1 point.
+   1 donut = 1 point.
    1 bottle of wine = 6 points. First team to 50 points ends the race
    for everyone.
 
@@ -402,8 +403,11 @@ const RACE = {
   startISO: '2026-09-19T10:00:00+02:00'
 };
 
+/* The lap track is 0.5 km. One tap on '+0.5 km' is one lap. */
+const KM_PER_LAP = 0.5;
+
 const SCORE = {
-  km:    { pts: 1, label: 'Km',     btn: '+1 km' },
+  km:    { pts: 0.5, label: 'Km',   btn: '+0.5 km' },
   beer:  { pts: 1, label: 'Beers',  btn: '+1 beer' },
   donut: { pts: 1, label: 'Donuts', btn: '+1 donut' },
   wine:  { pts: 6, label: 'Wine',   btn: 'Bottle +6' }
@@ -417,6 +421,9 @@ const $ = (s, r) => (r || document).querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = n => String(n).padStart(2, '0');
+/* Points and distance come in halves — show a decimal only when there is one. */
+const fmtHalf = n => (Math.round(n * 10) / 10).toString();
+const kmOf = t => (t.km || 0) * KM_PER_LAP;
 
 function hms(ms) {
   if (!isFinite(ms)) return '--:--:--';
@@ -659,11 +666,12 @@ function rowHtml(t, pos, over) {
           (isMine ? '<span style="color:var(--mauve)">Your team</span>' : '') +
         '</div>' +
       '</div>' +
-      '<div class="km">' + pts + '<small>/ ' + RACE.target + ' PTS</small></div>' +
+      '<div class="km">' + fmtHalf(pts) + '<small>/ ' + RACE.target + ' PTS</small></div>' +
       '<div class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
       '<div class="stats">' +
         KINDS.map(k => '<div><span class="k">' + SCORE[k].label + '</span><span class="v' +
-          ((t[k] || 0) ? ' hi' : '') + '">' + (t[k] || 0) + '</span></div>').join('') +
+          ((t[k] || 0) ? ' hi' : '') + '">' +
+          (k === 'km' ? fmtHalf(kmOf(t)) : (t[k] || 0)) + '</span></div>').join('') +
         '<div><span class="k">Pts / hr</span><span class="v">' +
           (isFinite(rate) ? rate.toFixed(1) : '&mdash;') + '</span></div>' +
         '<div><span class="k">' + (isFinite(fin) ? 'Hit 50' : 'On 50 at') + '</span><span class="v">' +
@@ -687,9 +695,9 @@ function render() {
 
   const tot = k => store.teams.reduce((s, t) => s + (t[k] || 0), 0);
   const pts = store.teams.reduce((s, t) => s + pointsOf(t), 0);
-  $('#tPts').textContent = pts;
+  $('#tPts').textContent = fmtHalf(pts);
   $('#tTeams').textContent = store.teams.length;
-  $('#tKm').innerHTML = tot('km') + '<small>KM</small>';
+  $('#tKm').innerHTML = fmtHalf(tot('km') * KM_PER_LAP) + '<small>KM</small>';
   $('#tally').textContent = tot('beer') + ' beers  ·  ' + tot('donut') +
     ' donuts  ·  ' + tot('wine') + ' bottles';
 
