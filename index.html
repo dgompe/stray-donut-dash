@@ -3,170 +3,176 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Live race board for STRAY 01 Donut Dash - 50 km in 1 km loops, IMD Lausanne, for Fondation Planetes Enfants Malades.">
-<meta name="theme-color" content="#101725">
+<meta name="description" content="Live race board for STRAY 01 Donut Dash - 50 km in 1 km loops, IMD Lausanne.">
+<meta name="theme-color" content="#1C2331">
 <title>Donut Dash Race Board</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Poppins:wght@300;400;500;600;700&display=swap">
 <style>
   :root{
-    --ground:#101725;
-    --surface:#18202F;
-    --surface-2:#1F293B;
-    --line:#2C3853;
-    --bone:#ECE6DA;
-    --muted:#8B98B0;
-    --signal:#F2B441;
-    --glaze:#E8768C;
-    --good:#6FCF97;
-    --shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 8px 24px rgba(0,0,0,.35);
-    --r:4px;
+    --ground:#1C2331;
+    --surface:#2B3444;
+    --surface-2:#343E50;
+    --line:#3E4A5E;
+    --ink:#FFFFFF;
+    --muted:#96A1B4;
+    --mauve:#CEA1CB;
+    --mauve-dim:#7E6480;
+    --r:3px;
+    --track:.18em;
     color-scheme:dark;
   }
   :root[data-theme="light"]{
-    --ground:#EDEAE1;
-    --surface:#F6F4EE;
-    --surface-2:#E4E0D4;
-    --line:#CFC9BA;
-    --bone:#1A2233;
-    --muted:#6B7488;
-    --signal:#A8720C;
-    --glaze:#C2455F;
-    --good:#2E7D4F;
-    --shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 6px 18px rgba(26,34,51,.10);
+    --ground:#EFEDF1;
+    --surface:#FFFFFF;
+    --surface-2:#E6E3EA;
+    --line:#D2CDD8;
+    --ink:#1C2331;
+    --muted:#6A7285;
+    --mauve:#8A5686;
+    --mauve-dim:#C3A7C1;
     color-scheme:light;
   }
   *{box-sizing:border-box}
   html,body{margin:0}
   body{
     background:var(--ground);
-    color:var(--bone);
-    font-family:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:var(--ink);
+    font-family:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:300;
     font-size:15px;
-    line-height:1.45;
+    line-height:1.5;
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
-  .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
-  .disp{font-family:"Anton",Impact,"Haettenschweiler",sans-serif;font-weight:400;letter-spacing:.01em;text-transform:uppercase}
+  .wrap{max-width:900px;margin:0 auto;padding-inline:18px;padding-block:0 56px}
+  .disp{font-family:"Archivo Black","Poppins",Impact,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:-.01em}
+  .lbl{font-size:10px;font-weight:400;letter-spacing:var(--track);text-transform:uppercase;color:var(--muted)}
+  .num{font-weight:600;font-variant-numeric:tabular-nums}
 
   /* ---------- masthead ---------- */
   header{
     position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
     background:var(--ground);border-bottom:1px solid var(--line);
   }
-  .mast{max-width:860px;margin:0 auto;padding:10px 16px 8px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
-  .mark{display:flex;align-items:baseline;gap:8px;line-height:1}
-  .mark .stray{font-family:"Anton",Impact,sans-serif;font-size:26px;letter-spacing:.06em;text-transform:uppercase}
-  .mark .num{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--signal);letter-spacing:.14em;border:1px solid var(--signal);padding:2px 5px;border-radius:2px}
-  .mast h1{margin:0;font-family:"Anton",Impact,sans-serif;font-size:clamp(28px,7vw,44px);line-height:.92;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
-  .mast .meta{margin-left:auto;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.09em;color:var(--muted);text-transform:uppercase;line-height:1.7}
-  .mast .meta b{color:var(--bone);font-weight:500}
+  .mast{max-width:900px;margin:0 auto;padding:14px 18px 12px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .mark{display:flex;align-items:center;gap:10px}
+  .mark svg{height:34px;width:auto;display:block;color:var(--ink)}
+  .mark .ed{font-size:10px;font-weight:500;letter-spacing:var(--track);text-transform:uppercase;color:var(--mauve);
+            border:1px solid var(--mauve);border-radius:2px;padding:3px 6px 2px}
+  .mast h1{margin:0;font-family:"Archivo Black","Poppins",Impact,sans-serif;font-weight:400;
+           font-size:clamp(26px,6.5vw,38px);line-height:1;letter-spacing:-.015em;text-transform:uppercase;text-wrap:balance}
+  .mast .meta{margin-left:auto;text-align:right;font-size:10px;font-weight:300;letter-spacing:var(--track);
+              color:var(--muted);text-transform:uppercase;line-height:1.9}
+  .mast .meta b{color:var(--ink);font-weight:600}
 
-  /* ---------- field totals strip ---------- */
-  .strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);margin-top:18px;overflow:hidden}
-  .strip div{background:var(--surface);padding:10px 12px}
-  .strip .k{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .strip .v{font-family:"Anton",Impact,sans-serif;font-size:24px;line-height:1.1;margin-top:2px}
-  .strip .v small{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;margin-left:3px}
+  /* ---------- field totals ---------- */
+  .strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);
+         border:1px solid var(--line);border-radius:var(--r);margin-top:22px;overflow:hidden}
+  .strip div{background:var(--surface);padding:12px 14px}
+  .strip .k{display:block;font-size:10px;font-weight:400;letter-spacing:var(--track);text-transform:uppercase;color:var(--muted)}
+  .strip .v{display:block;font-family:"Archivo Black","Poppins",Impact,sans-serif;font-weight:400;
+            font-size:26px;line-height:1.15;margin-top:4px;font-variant-numeric:tabular-nums;color:var(--mauve)}
+  .strip .v small{font-family:"Poppins",sans-serif;font-weight:400;font-size:11px;color:var(--muted);
+                  letter-spacing:.1em;margin-left:4px}
   @media(max-width:560px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
   /* ---------- tabs ---------- */
-  nav.tabs{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line)}
+  nav.tabs{display:flex;margin-top:26px;border-bottom:1px solid var(--line)}
   nav.tabs button{
     appearance:none;background:none;border:0;border-bottom:2px solid transparent;
-    color:var(--muted);font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;
-    text-transform:uppercase;padding:9px 14px 8px;cursor:pointer;
+    color:var(--muted);font-family:"Poppins",sans-serif;font-weight:400;font-size:11px;
+    letter-spacing:var(--track);text-transform:uppercase;padding:10px 16px 9px;cursor:pointer;
   }
-  nav.tabs button[aria-selected="true"]{color:var(--bone);border-bottom-color:var(--signal)}
-  nav.tabs button:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
+  nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--mauve)}
+  nav.tabs button:focus-visible{outline:2px solid var(--mauve);outline-offset:-2px}
 
-  section[role="tabpanel"]{padding-top:20px}
+  section[role="tabpanel"]{padding-top:22px}
 
   /* ---------- board ---------- */
   .board{display:flex;flex-direction:column;gap:8px}
   .row{
     background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-    padding:11px 13px;display:grid;grid-template-columns:32px 1fr auto;gap:10px 12px;align-items:center;
+    padding:13px 15px;display:grid;grid-template-columns:34px 1fr auto;gap:11px 12px;align-items:center;
     position:relative;overflow:hidden;
   }
-  .row.mine{border-color:var(--signal)}
-  .row.done::after{content:"";position:absolute;inset:0;border:1px solid var(--good);border-radius:var(--r);pointer-events:none}
-  .pos{font-family:"Anton",Impact,sans-serif;font-size:22px;color:var(--muted);text-align:center}
-  .row.pod .pos{color:var(--signal)}
+  .row.mine{border-color:var(--mauve)}
+  .row.done{border-color:var(--mauve);background:var(--surface-2)}
+  .pos{font-family:"Archivo Black","Poppins",Impact,sans-serif;font-weight:400;font-size:20px;
+       color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+  .row.pod .pos{color:var(--mauve)}
   .who{min-width:0}
-  .who .name{font-weight:600;font-size:17px;overflow-wrap:anywhere}
-  .who .sub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
-  .chip{border:1px solid var(--line);border-radius:2px;padding:1px 5px}
-  .chip.pair{border-color:var(--glaze);color:var(--glaze)}
-  .km{font-family:"Anton",Impact,sans-serif;font-size:26px;line-height:1;text-align:right;white-space:nowrap}
-  .km small{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;margin-left:3px}
+  .who .name{font-weight:600;font-size:17px;overflow-wrap:anywhere;letter-spacing:-.005em}
+  .who .sub{font-size:10px;font-weight:400;letter-spacing:var(--track);text-transform:uppercase;
+            color:var(--muted);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip{border:1px solid var(--line);border-radius:2px;padding:2px 6px 1px}
+  .chip.pair{border-color:var(--mauve-dim);color:var(--mauve)}
+  .km{font-family:"Archivo Black","Poppins",Impact,sans-serif;font-weight:400;font-size:26px;
+      line-height:1;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .km small{font-family:"Poppins",sans-serif;font-weight:400;font-size:11px;color:var(--muted);
+            letter-spacing:.09em;margin-left:4px}
   .bar{grid-column:1/-1;height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden}
-  .bar i{display:block;height:100%;background:var(--signal);transition:width .4s ease}
-  .row.done .bar i{background:var(--good)}
-  .stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;font-family:"IBM Plex Mono",monospace;font-size:11px}
-  .stats .k{display:block;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
-  .stats .v{font-size:13px;font-variant-numeric:tabular-nums}
-  .stats .v.pink{color:var(--glaze)}
+  :root[data-theme="light"] .bar{background:var(--line)}
+  .bar i{display:block;height:100%;background:var(--mauve);transition:width .4s ease}
+  .stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .stats .k{display:block;font-size:9px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .stats .v{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+  .stats .v.hi{color:var(--mauve)}
   .acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
   button.act{
     appearance:none;cursor:pointer;border-radius:var(--r);
-    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
-    padding:10px 14px;border:1px solid var(--line);background:var(--surface-2);color:var(--bone);
+    font-family:"Poppins",sans-serif;font-weight:500;font-size:11px;letter-spacing:var(--track);
+    text-transform:uppercase;padding:11px 15px 10px;border:1px solid var(--line);
+    background:var(--surface-2);color:var(--ink);
   }
-  button.act:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
-  button.act.lap{background:var(--signal);border-color:var(--signal);color:#101725;font-weight:600;flex:1 1 150px}
-  button.act.donut{border-color:var(--glaze);color:var(--glaze)}
-  button.act.ghost{background:none}
+  button.act:focus-visible{outline:2px solid var(--mauve);outline-offset:2px}
+  button.act.lap{background:var(--mauve);border-color:var(--mauve);color:#1C2331;font-weight:600;flex:1 1 170px}
+  button.act.alt{border-color:var(--mauve-dim);color:var(--mauve);background:none}
+  button.act.ghost{background:none;color:var(--muted)}
   button.act:disabled{opacity:.45;cursor:not-allowed}
-  .undo{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);letter-spacing:.08em}
+  .fin{font-size:10px;font-weight:400;letter-spacing:var(--track);text-transform:uppercase;color:var(--mauve)}
 
-  .empty{border:1px dashed var(--line);border-radius:var(--r);padding:28px 18px;text-align:center;color:var(--muted)}
+  .empty{border:1px dashed var(--line);border-radius:var(--r);padding:32px 20px;text-align:center;color:var(--muted)}
 
   /* ---------- forms ---------- */
-  form.card,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
-  .card h2{font-family:"Anton",Impact,sans-serif;text-transform:uppercase;font-size:20px;margin:0 0 4px;letter-spacing:.02em}
-  .card p{margin:0 0 16px;color:var(--muted);max-width:60ch}
-  label{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  form.card,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+  .card h2{font-family:"Archivo Black","Poppins",Impact,sans-serif;font-weight:400;text-transform:uppercase;
+           font-size:19px;margin:0 0 6px;letter-spacing:-.01em}
+  .card p{margin:0 0 18px;color:var(--muted);max-width:62ch}
+  label{display:block;font-size:10px;font-weight:400;letter-spacing:var(--track);text-transform:uppercase;
+        color:var(--muted);margin-bottom:6px}
   input[type=text]{
     width:100%;background:var(--ground);border:1px solid var(--line);border-radius:var(--r);
-    color:var(--bone);font-family:"Barlow",sans-serif;font-size:16px;padding:10px 12px;
+    color:var(--ink);font-family:"Poppins",sans-serif;font-weight:400;font-size:16px;padding:11px 13px;
   }
-  input[type=text]:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
-  .field{margin-bottom:14px}
+  :root[data-theme="light"] input[type=text]{background:var(--surface-2)}
+  input[type=text]:focus{outline:2px solid var(--mauve);outline-offset:-1px;border-color:var(--mauve)}
+  .field{margin-bottom:16px}
   .seg{display:flex;gap:8px}
   .seg button{
     flex:1;appearance:none;cursor:pointer;background:var(--ground);border:1px solid var(--line);
-    border-radius:var(--r);color:var(--muted);padding:11px 8px;
-    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    border-radius:var(--r);color:var(--muted);padding:12px 8px 11px;
+    font-family:"Poppins",sans-serif;font-weight:400;font-size:11px;letter-spacing:var(--track);text-transform:uppercase;
   }
-  .seg button[aria-pressed="true"]{border-color:var(--signal);color:var(--bone);background:var(--surface-2)}
-  .note{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:10px}
-  .err{color:var(--glaze);font-family:"IBM Plex Mono",monospace;font-size:11.5px;margin-top:10px;letter-spacing:.04em}
+  :root[data-theme="light"] .seg button{background:var(--surface-2)}
+  .seg button[aria-pressed="true"]{border-color:var(--mauve);color:var(--ink)}
+  .note{font-size:11px;color:var(--muted);letter-spacing:.02em;margin-top:12px}
+  .err{color:var(--mauve);font-size:12px;font-weight:500;margin-top:12px;letter-spacing:.02em}
 
-  /* ---------- give ---------- */
-  .give{margin-top:10px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
-        background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--glaze);border-radius:var(--r);padding:16px 18px}
-  .give h2{font-family:"Anton",Impact,sans-serif;text-transform:uppercase;font-size:18px;margin:0 0 3px}
-  .give p{margin:0;color:var(--muted);font-size:14px;max-width:52ch}
-  .give a{
-    display:inline-block;background:var(--glaze);color:#101725;text-decoration:none;font-weight:600;
-    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
-    padding:11px 16px;border-radius:var(--r);white-space:nowrap;
-  }
-  :root[data-theme="light"] .give a{color:#F6F4EE}
-  @media(max-width:560px){.give{grid-template-columns:1fr}}
+  .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px}
+  .facts .k{display:block;font-size:9px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .facts .v{font-size:15px;font-weight:600;color:var(--mauve)}
 
   /* ---------- mode banner + footer ---------- */
-  .mode{margin-top:18px;border:1px solid var(--line);border-left:3px solid var(--signal);border-radius:var(--r);
-        background:var(--surface);padding:12px 14px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
-        line-height:1.6;letter-spacing:.03em;color:var(--muted)}
-  .mode b{color:var(--bone);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
-  footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);
-         font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
-         display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
-  footer a{color:var(--muted)}
+  .mode{margin-top:20px;border:1px solid var(--line);border-left:2px solid var(--mauve);border-radius:var(--r);
+        background:var(--surface);padding:14px 16px;font-size:12px;font-weight:300;
+        line-height:1.7;color:var(--muted)}
+  .mode b{display:block;color:var(--ink);font-weight:600;font-size:10px;letter-spacing:var(--track);
+          text-transform:uppercase;margin-bottom:2px}
+  footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+         font-size:10px;font-weight:300;letter-spacing:var(--track);text-transform:uppercase;color:var(--muted);
+         display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+  footer svg{height:20px;width:auto;color:var(--muted);opacity:.8}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -174,8 +180,56 @@
 <header>
   <div class="mast">
     <div>
-      <div class="mark"><span class="stray">Stray</span><span class="num">01</span></div>
-      <h1>Donut Dash</h1>
+      <div class="mark">
+        <svg viewBox="0 0 749 399" role="img" aria-label="Stray"><g transform="translate(0,399) scale(0.1,-0.1)" fill="currentColor"><path d="M2677 3920 c-365 -35 -745 -142 -1073 -300 -163 -79 -253 -194 -262
+-336 -6 -97 7 -130 76 -198 117 -115 268 -143 513 -93 240 49 319 45 335 -19
+12 -48 -4 -218 -31 -329 -14 -60 -31 -128 -36 -150 -5 -22 -18 -67 -28 -100
+-10 -33 -24 -80 -31 -105 -7 -25 -23 -79 -35 -120 -25 -85 -35 -130 -64 -285
+-11 -60 -32 -173 -46 -250 -14 -77 -32 -171 -40 -210 -8 -38 -17 -87 -20 -107
+-3 -21 -8 -38 -11 -38 -9 0 -40 40 -76 95 -86 134 -202 226 -433 346 -238 123
+-302 171 -360 271 -76 129 -27 238 107 238 44 0 72 -10 173 -59 181 -89 229
+-104 322 -99 129 7 200 52 251 157 51 108 31 279 -43 371 -35 45 -147 150
+-174 163 -14 8 -42 23 -61 34 -404 229 -1220 32 -1448 -349 -63 -105 -75 -151
+-76 -283 -1 -148 29 -237 121 -364 33 -44 135 -151 145 -151 4 0 20 -12 35
+-26 46 -43 96 -72 328 -187 265 -131 411 -217 475 -277 127 -120 115 -231 -30
+-275 -59 -18 -64 -18 -137 -1 -70 17 -143 43 -186 67 -19 10 -120 46 -196 70
+-58 17 -243 18 -301 1 -126 -38 -233 -109 -271 -182 -31 -58 -34 -214 -5 -300
+79 -233 296 -361 677 -400 192 -19 415 9 594 74 86 32 282 131 311 157 11 10
+24 19 28 19 11 0 79 53 138 107 51 47 70 48 88 3 18 -44 136 -156 193 -184
+104 -50 189 -55 302 -16 107 37 223 136 284 243 52 90 90 109 91 44 0 -31 50
+-137 87 -187 115 -155 379 -153 519 3 88 98 116 193 169 572 37 264 88 382
+196 453 61 40 107 49 153 27 71 -34 113 -116 201 -390 127 -395 182 -497 306
+-570 55 -32 67 -35 139 -35 62 0 88 5 117 21 206 115 351 371 413 724 6 35 17
+65 27 72 40 30 163 6 207 -40 53 -56 85 -171 91 -326 5 -135 11 -182 31 -271
+46 -202 145 -368 294 -495 171 -145 303 -96 533 195 7 8 35 53 62 100 87 148
+78 130 160 304 23 50 45 102 49 116 4 14 11 34 16 45 82 200 98 236 259 570
+45 94 95 197 110 230 16 33 42 89 59 125 300 643 435 1046 436 1306 1 97 -2
+116 -22 155 -45 86 -122 118 -238 99 -84 -14 -108 -39 -180 -180 -35 -70 -37
+-75 -108 -275 -25 -71 -50 -139 -56 -150 -5 -11 -21 -51 -35 -90 -33 -88 -128
+-279 -162 -324 -71 -92 -226 -92 -297 1 -14 19 -26 38 -26 42 0 4 -11 22 -25
+40 -14 18 -25 36 -25 40 0 4 -12 26 -27 49 -16 23 -32 50 -38 59 -26 43 -141
+208 -174 248 -20 25 -55 70 -79 101 -70 93 -230 241 -296 273 -83 41 -186 48
+-250 17 -90 -44 -141 -151 -132 -273 3 -40 7 -93 8 -117 l3 -44 -50 -12 c-171
+-40 -278 -172 -370 -460 -84 -263 -97 -302 -123 -365 -14 -36 -53 -117 -86
+-180 -33 -63 -82 -159 -109 -212 l-49 -97 -27 13 c-48 25 -139 130 -146 169
+-12 62 5 86 133 191 146 119 228 247 319 496 74 205 97 319 97 495 0 317 -116
+510 -354 589 -173 57 -404 41 -562 -40 -16 -8 -40 -20 -55 -28 -42 -20 -185
+-97 -214 -115 -165 -100 -343 -276 -444 -440 -5 -9 -18 -28 -28 -43 -53 -80
+-197 -398 -197 -434 0 -8 -4 -22 -9 -32 -5 -9 -24 -62 -41 -116 -17 -55 -38
+-108 -46 -120 -7 -11 -14 -30 -14 -43 0 -12 -4 -24 -9 -27 -11 -7 -19 83 -26
+316 -4 155 -20 310 -55 541 -23 155 -6 252 50 283 49 26 136 63 190 79 30 9
+71 23 90 30 20 7 85 23 145 35 151 31 205 56 249 117 111 152 42 375 -141 454
+-140 60 -470 92 -706 69z m1453 -980 c81 -88 105 -367 50 -575 -12 -44 -25
+-93 -29 -110 -13 -46 -94 -214 -134 -276 -85 -133 -198 -178 -264 -107 -107
+116 -69 605 67 880 65 130 167 228 239 228 27 0 42 -8 71 -40z m1713 -680
+c255 -203 350 -449 267 -689 -20 -58 -55 -127 -70 -141 -10 -10 -80 -120 -80
+-127 0 -5 -13 -27 -30 -51 -16 -24 -31 -48 -34 -55 -13 -34 -34 42 -81 298
+-14 77 -30 156 -35 175 -5 19 -21 91 -35 160 -15 69 -31 141 -35 160 -109 429
+-110 435 -9 372 33 -20 97 -66 142 -102z m-519 -99 c62 -54 82 -253 38 -384
+-77 -229 -194 -243 -242 -28 -16 69 -8 230 15 296 42 121 125 172 189 116z"/></g></svg>
+        <span class="ed">01</span>
+      </div>
+      <h1 style="margin-top:8px">Donut Dash</h1>
     </div>
     <div class="meta">
       50&nbsp;km &middot; 1&nbsp;km loops<br>
@@ -191,7 +245,7 @@
     <div><span class="k">Field total</span><span class="v" id="tKm">0<small>KM</small></span></div>
     <div><span class="k">Teams out</span><span class="v" id="tTeams">0</span></div>
     <div><span class="k">Donuts down</span><span class="v" id="tDonuts">0</span></div>
-    <div><span class="k" id="kClock">Starts in</span><span class="v mono" id="tClock" style="font-size:20px">--:--:--</span></div>
+    <div><span class="k" id="kClock">Starts in</span><span class="v" id="tClock" style="font-size:22px">--:--:--</span></div>
   </div>
 
   <nav class="tabs" role="tablist">
@@ -202,13 +256,6 @@
 
   <section role="tabpanel" id="p-board" aria-labelledby="tab-board">
     <div class="board" id="board"></div>
-    <div class="give">
-      <div>
-        <h2>Every loop is for the kids at CHUV</h2>
-        <p>100% of what we raise goes to Fondation Plan&egrave;tes Enfants Malades. No minimum, no cut, no admin fee.</p>
-      </div>
-      <a href="https://www.fpem.ch" target="_blank" rel="noopener">Donate</a>
-    </div>
     <div class="mode" id="mode"></div>
   </section>
 
@@ -241,23 +288,68 @@
     <div class="card">
       <h2>How the dash works</h2>
       <p>Fifty laps of the same kilometre. Start together at 10:00, finish whenever your fiftieth loop lands. Donuts sit at the arch. Drinks you bring yourself.</p>
-      <div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px">
+      <div class="facts">
         <div><span class="k">Loop</span><span class="v">1.00 km &middot; flat</span></div>
         <div><span class="k">Distance</span><span class="v">50 laps</span></div>
         <div><span class="k">Start</span><span class="v">10:00 sharp</span></div>
         <div><span class="k">Base</span><span class="v">IMD, Ch. de Bellerive</span></div>
       </div>
-      <p style="margin-bottom:10px"><b style="color:var(--bone)">Counting your own laps.</b> Find your row, hit the big button as you pass the arch. The board updates for everyone within a second or two. Hit it late? Use <span class="mono">UNDO</span>, it only ever removes the last one.</p>
-      <p style="margin-bottom:10px"><b style="color:var(--bone)">Donuts.</b> Log them. Pace is a number, donuts are the point.</p>
-      <p style="margin-bottom:0"><b style="color:var(--bone)">Pace &amp; projection.</b> Average is taken over your last ten loops, so it follows how you are running now rather than how you started. Projected finish assumes you hold that average for what is left.</p>
+      <p style="margin-bottom:12px"><b style="color:var(--ink);font-weight:600">Counting your own laps.</b> Find your row, hit the big button as you pass the arch. The board updates for everyone within a second or two. Hit it late? Use Undo, it only ever removes the last one.</p>
+      <p style="margin-bottom:12px"><b style="color:var(--ink);font-weight:600">Donuts.</b> Log them. Pace is a number, donuts are the point.</p>
+      <p style="margin-bottom:0"><b style="color:var(--ink);font-weight:600">Pace &amp; projection.</b> Average is taken over your last ten loops, so it follows how you are running now rather than how you started. Projected finish assumes you hold that average for what is left.</p>
     </div>
     <div class="mode" id="mode2"></div>
   </section>
 
   <footer>
-    <span>Stray 01 &mdash; Donut Dash</span>
-    <span>IMD Run Club &middot; Lausanne</span>
-    <span>For Fondation Plan&egrave;tes Enfants Malades</span>
+    <svg viewBox="0 0 749 399" role="img" aria-label="Stray"><g transform="translate(0,399) scale(0.1,-0.1)" fill="currentColor"><path d="M2677 3920 c-365 -35 -745 -142 -1073 -300 -163 -79 -253 -194 -262
+-336 -6 -97 7 -130 76 -198 117 -115 268 -143 513 -93 240 49 319 45 335 -19
+12 -48 -4 -218 -31 -329 -14 -60 -31 -128 -36 -150 -5 -22 -18 -67 -28 -100
+-10 -33 -24 -80 -31 -105 -7 -25 -23 -79 -35 -120 -25 -85 -35 -130 -64 -285
+-11 -60 -32 -173 -46 -250 -14 -77 -32 -171 -40 -210 -8 -38 -17 -87 -20 -107
+-3 -21 -8 -38 -11 -38 -9 0 -40 40 -76 95 -86 134 -202 226 -433 346 -238 123
+-302 171 -360 271 -76 129 -27 238 107 238 44 0 72 -10 173 -59 181 -89 229
+-104 322 -99 129 7 200 52 251 157 51 108 31 279 -43 371 -35 45 -147 150
+-174 163 -14 8 -42 23 -61 34 -404 229 -1220 32 -1448 -349 -63 -105 -75 -151
+-76 -283 -1 -148 29 -237 121 -364 33 -44 135 -151 145 -151 4 0 20 -12 35
+-26 46 -43 96 -72 328 -187 265 -131 411 -217 475 -277 127 -120 115 -231 -30
+-275 -59 -18 -64 -18 -137 -1 -70 17 -143 43 -186 67 -19 10 -120 46 -196 70
+-58 17 -243 18 -301 1 -126 -38 -233 -109 -271 -182 -31 -58 -34 -214 -5 -300
+79 -233 296 -361 677 -400 192 -19 415 9 594 74 86 32 282 131 311 157 11 10
+24 19 28 19 11 0 79 53 138 107 51 47 70 48 88 3 18 -44 136 -156 193 -184
+104 -50 189 -55 302 -16 107 37 223 136 284 243 52 90 90 109 91 44 0 -31 50
+-137 87 -187 115 -155 379 -153 519 3 88 98 116 193 169 572 37 264 88 382
+196 453 61 40 107 49 153 27 71 -34 113 -116 201 -390 127 -395 182 -497 306
+-570 55 -32 67 -35 139 -35 62 0 88 5 117 21 206 115 351 371 413 724 6 35 17
+65 27 72 40 30 163 6 207 -40 53 -56 85 -171 91 -326 5 -135 11 -182 31 -271
+46 -202 145 -368 294 -495 171 -145 303 -96 533 195 7 8 35 53 62 100 87 148
+78 130 160 304 23 50 45 102 49 116 4 14 11 34 16 45 82 200 98 236 259 570
+45 94 95 197 110 230 16 33 42 89 59 125 300 643 435 1046 436 1306 1 97 -2
+116 -22 155 -45 86 -122 118 -238 99 -84 -14 -108 -39 -180 -180 -35 -70 -37
+-75 -108 -275 -25 -71 -50 -139 -56 -150 -5 -11 -21 -51 -35 -90 -33 -88 -128
+-279 -162 -324 -71 -92 -226 -92 -297 1 -14 19 -26 38 -26 42 0 4 -11 22 -25
+40 -14 18 -25 36 -25 40 0 4 -12 26 -27 49 -16 23 -32 50 -38 59 -26 43 -141
+208 -174 248 -20 25 -55 70 -79 101 -70 93 -230 241 -296 273 -83 41 -186 48
+-250 17 -90 -44 -141 -151 -132 -273 3 -40 7 -93 8 -117 l3 -44 -50 -12 c-171
+-40 -278 -172 -370 -460 -84 -263 -97 -302 -123 -365 -14 -36 -53 -117 -86
+-180 -33 -63 -82 -159 -109 -212 l-49 -97 -27 13 c-48 25 -139 130 -146 169
+-12 62 5 86 133 191 146 119 228 247 319 496 74 205 97 319 97 495 0 317 -116
+510 -354 589 -173 57 -404 41 -562 -40 -16 -8 -40 -20 -55 -28 -42 -20 -185
+-97 -214 -115 -165 -100 -343 -276 -444 -440 -5 -9 -18 -28 -28 -43 -53 -80
+-197 -398 -197 -434 0 -8 -4 -22 -9 -32 -5 -9 -24 -62 -41 -116 -17 -55 -38
+-108 -46 -120 -7 -11 -14 -30 -14 -43 0 -12 -4 -24 -9 -27 -11 -7 -19 83 -26
+316 -4 155 -20 310 -55 541 -23 155 -6 252 50 283 49 26 136 63 190 79 30 9
+71 23 90 30 20 7 85 23 145 35 151 31 205 56 249 117 111 152 42 375 -141 454
+-140 60 -470 92 -706 69z m1453 -980 c81 -88 105 -367 50 -575 -12 -44 -25
+-93 -29 -110 -13 -46 -94 -214 -134 -276 -85 -133 -198 -178 -264 -107 -107
+116 -69 605 67 880 65 130 167 228 239 228 27 0 42 -8 71 -40z m1713 -680
+c255 -203 350 -449 267 -689 -20 -58 -55 -127 -70 -141 -10 -10 -80 -120 -80
+-127 0 -5 -13 -27 -30 -51 -16 -24 -31 -48 -34 -55 -13 -34 -34 42 -81 298
+-14 77 -30 156 -35 175 -5 19 -21 91 -35 160 -15 69 -31 141 -35 160 -109 429
+-110 435 -9 372 33 -20 97 -66 142 -102z m-519 -99 c62 -54 82 -253 38 -384
+-77 -229 -194 -243 -242 -28 -16 69 -8 230 15 296 42 121 125 172 189 116z"/></g></svg>
+    <span>01 &mdash; Donut Dash &middot; IMD Run Club, Lausanne</span>
+    <span>Running together for the Fondation Plan&egrave;tes Enfants Malades</span>
   </footer>
 </div>
 
@@ -290,8 +382,7 @@ const FIREBASE_CONFIG = {
 /* Race constants — edit if anything moves. */
 const RACE = {
   laps: 50,
-  startISO: '2026-09-19T10:00:00+02:00',
-  donateUrl: 'https://www.fpem.ch'
+  startISO: '2026-09-19T10:00:00+02:00'
 };
 
 /* ------------------------------------------------------------------ */
@@ -517,15 +608,15 @@ function rowHtml(t, pos) {
         '<div><span class="k">Avg lap</span><span class="v">' + mmss(avg) + '</span></div>' +
         '<div><span class="k">Last through</span><span class="v">' + (lastAt ? clockOfDay(lastAt) : '—') + '</span></div>' +
         '<div><span class="k">' + projKey + '</span><span class="v">' + projTxt + '</span></div>' +
-        '<div><span class="k">Donuts</span><span class="v pink">' + (t.donuts || 0) + '</span></div>' +
+        '<div><span class="k">Donuts</span><span class="v hi">' + (t.donuts || 0) + '</span></div>' +
       '</div>' +
       '<div class="acts">' +
         (done
-          ? '<span class="undo">Fifty loops. Go and sit down.</span>'
+          ? '<span class="fin">Fifty loops. Go and sit down.</span>'
           : (isMine
               ? '<button class="act lap" data-act="lap">Lap done &mdash; ' + (t.laps + 1) + ' of ' + RACE.laps + '</button>'
               : '<button class="act ghost" data-act="lap">+1 lap</button>')) +
-        '<button class="act donut" data-act="donut">+1 donut</button>' +
+        '<button class="act alt" data-act="donut">+1 donut</button>' +
         (isMine && t.laps > 0 ? '<button class="act ghost" data-act="undo">Undo lap</button>' : '') +
         (isMine && (t.donuts || 0) > 0 ? '<button class="act ghost" data-act="undonut">Undo donut</button>' : '') +
       '</div>' +
@@ -644,8 +735,8 @@ $('#signupForm').addEventListener('submit', async e => {
 function setBanner(html) {
   ['#mode', '#mode2'].forEach(sel => { const el = $(sel); if (el) el.innerHTML = html; });
 }
-const LIVE_MSG = '<b>Live board</b><br>Every phone on this link sees the same board. Sign up, then tap your own laps as you come through the arch.';
-const DEVICE_MSG = '<b>Device mode</b><br>Fully working, but the board lives on this device only — nothing is shared with other phones yet. Add a Firebase config at the top of the page source to make it live for everyone.<br>The four teams on the board are examples, so you can see race day. <button class="act ghost" id="clearDemo" style="margin-top:8px">Clear examples</button>';
+const LIVE_MSG = '<b>Live board</b>Every phone on this link sees the same board. Sign up, then tap your own laps as you come through the arch.';
+const DEVICE_MSG = '<b>Device mode</b>Fully working, but the board lives on this device only — nothing is shared with other phones yet. Add a Firebase config at the top of the page source to make it live for everyone.<br>The four teams on the board are examples, so you can see race day. <button class="act ghost" id="clearDemo" style="margin-top:8px">Clear examples</button>';
 
 document.addEventListener('click', e => {
   if (!e.target.closest('#clearDemo')) return;
@@ -655,7 +746,6 @@ document.addEventListener('click', e => {
   render();
 });
 
-document.querySelectorAll('.give a').forEach(a => { a.href = RACE.donateUrl; });
 
 /* ------------------------------------------------------------------ */
 /* boot                                                                */
@@ -671,7 +761,7 @@ store.onChange(render);
     } catch (err) {
       console.error('Firebase failed to start', err);
       store.mode = 'device';
-      setBanner('<b>Offline board</b><br>Could not reach the live board, so this device is keeping its own count. Laps are safe here — reload once you have signal.');
+      setBanner('<b>Offline board</b>Could not reach the live board, so this device is keeping its own count. Laps are safe here — reload once you have signal.');
       deviceStore.start();
     }
   } else {
