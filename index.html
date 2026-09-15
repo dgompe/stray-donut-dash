@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Live race board for STRAY 01 Donut Dash - 50 km in 1 km loops, IMD Lausanne, for Fondation Planetes Enfants Malades.">
+<meta name="theme-color" content="#101725">
+<title>Donut Dash Race Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#101725;
+    --surface:#18202F;
+    --surface-2:#1F293B;
+    --line:#2C3853;
+    --bone:#ECE6DA;
+    --muted:#8B98B0;
+    --signal:#F2B441;
+    --glaze:#E8768C;
+    --good:#6FCF97;
+    --shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 8px 24px rgba(0,0,0,.35);
+    --r:4px;
+    color-scheme:dark;
+  }
+  :root[data-theme="light"]{
+    --ground:#EDEAE1;
+    --surface:#F6F4EE;
+    --surface-2:#E4E0D4;
+    --line:#CFC9BA;
+    --bone:#1A2233;
+    --muted:#6B7488;
+    --signal:#A8720C;
+    --glaze:#C2455F;
+    --good:#2E7D4F;
+    --shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 6px 18px rgba(26,34,51,.10);
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--ground);
+    color:var(--bone);
+    font-family:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+  .disp{font-family:"Anton",Impact,"Haettenschweiler",sans-serif;font-weight:400;letter-spacing:.01em;text-transform:uppercase}
+
+  /* ---------- masthead ---------- */
+  header{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:var(--ground);border-bottom:1px solid var(--line);
+  }
+  .mast{max-width:860px;margin:0 auto;padding:10px 16px 8px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .mark{display:flex;align-items:baseline;gap:8px;line-height:1}
+  .mark .stray{font-family:"Anton",Impact,sans-serif;font-size:26px;letter-spacing:.06em;text-transform:uppercase}
+  .mark .num{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--signal);letter-spacing:.14em;border:1px solid var(--signal);padding:2px 5px;border-radius:2px}
+  .mast h1{margin:0;font-family:"Anton",Impact,sans-serif;font-size:clamp(28px,7vw,44px);line-height:.92;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+  .mast .meta{margin-left:auto;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.09em;color:var(--muted);text-transform:uppercase;line-height:1.7}
+  .mast .meta b{color:var(--bone);font-weight:500}
+
+  /* ---------- field totals strip ---------- */
+  .strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);margin-top:18px;overflow:hidden}
+  .strip div{background:var(--surface);padding:10px 12px}
+  .strip .k{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .strip .v{font-family:"Anton",Impact,sans-serif;font-size:24px;line-height:1.1;margin-top:2px}
+  .strip .v small{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;margin-left:3px}
+  @media(max-width:560px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+  /* ---------- tabs ---------- */
+  nav.tabs{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line)}
+  nav.tabs button{
+    appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+    color:var(--muted);font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;
+    text-transform:uppercase;padding:9px 14px 8px;cursor:pointer;
+  }
+  nav.tabs button[aria-selected="true"]{color:var(--bone);border-bottom-color:var(--signal)}
+  nav.tabs button:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
+
+  section[role="tabpanel"]{padding-top:20px}
+
+  /* ---------- board ---------- */
+  .board{display:flex;flex-direction:column;gap:8px}
+  .row{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+    padding:11px 13px;display:grid;grid-template-columns:32px 1fr auto;gap:10px 12px;align-items:center;
+    position:relative;overflow:hidden;
+  }
+  .row.mine{border-color:var(--signal)}
+  .row.done::after{content:"";position:absolute;inset:0;border:1px solid var(--good);border-radius:var(--r);pointer-events:none}
+  .pos{font-family:"Anton",Impact,sans-serif;font-size:22px;color:var(--muted);text-align:center}
+  .row.pod .pos{color:var(--signal)}
+  .who{min-width:0}
+  .who .name{font-weight:600;font-size:17px;overflow-wrap:anywhere}
+  .who .sub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);border-radius:2px;padding:1px 5px}
+  .chip.pair{border-color:var(--glaze);color:var(--glaze)}
+  .km{font-family:"Anton",Impact,sans-serif;font-size:26px;line-height:1;text-align:right;white-space:nowrap}
+  .km small{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;margin-left:3px}
+  .bar{grid-column:1/-1;height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--signal);transition:width .4s ease}
+  .row.done .bar i{background:var(--good)}
+  .stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;font-family:"IBM Plex Mono",monospace;font-size:11px}
+  .stats .k{display:block;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+  .stats .v{font-size:13px;font-variant-numeric:tabular-nums}
+  .stats .v.pink{color:var(--glaze)}
+  .acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+  button.act{
+    appearance:none;cursor:pointer;border-radius:var(--r);
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    padding:10px 14px;border:1px solid var(--line);background:var(--surface-2);color:var(--bone);
+  }
+  button.act:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+  button.act.lap{background:var(--signal);border-color:var(--signal);color:#101725;font-weight:600;flex:1 1 150px}
+  button.act.donut{border-color:var(--glaze);color:var(--glaze)}
+  button.act.ghost{background:none}
+  button.act:disabled{opacity:.45;cursor:not-allowed}
+  .undo{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);letter-spacing:.08em}
+
+  .empty{border:1px dashed var(--line);border-radius:var(--r);padding:28px 18px;text-align:center;color:var(--muted)}
+
+  /* ---------- forms ---------- */
+  form.card,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+  .card h2{font-family:"Anton",Impact,sans-serif;text-transform:uppercase;font-size:20px;margin:0 0 4px;letter-spacing:.02em}
+  .card p{margin:0 0 16px;color:var(--muted);max-width:60ch}
+  label{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  input[type=text]{
+    width:100%;background:var(--ground);border:1px solid var(--line);border-radius:var(--r);
+    color:var(--bone);font-family:"Barlow",sans-serif;font-size:16px;padding:10px 12px;
+  }
+  input[type=text]:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
+  .field{margin-bottom:14px}
+  .seg{display:flex;gap:8px}
+  .seg button{
+    flex:1;appearance:none;cursor:pointer;background:var(--ground);border:1px solid var(--line);
+    border-radius:var(--r);color:var(--muted);padding:11px 8px;
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  }
+  .seg button[aria-pressed="true"]{border-color:var(--signal);color:var(--bone);background:var(--surface-2)}
+  .note{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:10px}
+  .err{color:var(--glaze);font-family:"IBM Plex Mono",monospace;font-size:11.5px;margin-top:10px;letter-spacing:.04em}
+
+  /* ---------- give ---------- */
+  .give{margin-top:10px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+        background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--glaze);border-radius:var(--r);padding:16px 18px}
+  .give h2{font-family:"Anton",Impact,sans-serif;text-transform:uppercase;font-size:18px;margin:0 0 3px}
+  .give p{margin:0;color:var(--muted);font-size:14px;max-width:52ch}
+  .give a{
+    display:inline-block;background:var(--glaze);color:#101725;text-decoration:none;font-weight:600;
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    padding:11px 16px;border-radius:var(--r);white-space:nowrap;
+  }
+  :root[data-theme="light"] .give a{color:#F6F4EE}
+  @media(max-width:560px){.give{grid-template-columns:1fr}}
+
+  /* ---------- mode banner + footer ---------- */
+  .mode{margin-top:18px;border:1px solid var(--line);border-left:3px solid var(--signal);border-radius:var(--r);
+        background:var(--surface);padding:12px 14px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+        line-height:1.6;letter-spacing:.03em;color:var(--muted)}
+  .mode b{color:var(--bone);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+  footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);
+         font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+         display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
+  footer a{color:var(--muted)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="mast">
+    <div>
+      <div class="mark"><span class="stray">Stray</span><span class="num">01</span></div>
+      <h1>Donut Dash</h1>
+    </div>
+    <div class="meta">
+      50&nbsp;km &middot; 1&nbsp;km loops<br>
+      <b>Sat 19.09 &middot; 10:00</b><br>
+      IMD Campus, Lausanne
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="strip">
+    <div><span class="k">Field total</span><span class="v" id="tKm">0<small>KM</small></span></div>
+    <div><span class="k">Teams out</span><span class="v" id="tTeams">0</span></div>
+    <div><span class="k">Donuts down</span><span class="v" id="tDonuts">0</span></div>
+    <div><span class="k" id="kClock">Starts in</span><span class="v mono" id="tClock" style="font-size:20px">--:--:--</span></div>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-board" aria-controls="p-board" aria-selected="true">Board</button>
+    <button role="tab" id="tab-signup" aria-controls="p-signup" aria-selected="false">Sign up</button>
+    <button role="tab" id="tab-info" aria-controls="p-info" aria-selected="false">Race info</button>
+  </nav>
+
+  <section role="tabpanel" id="p-board" aria-labelledby="tab-board">
+    <div class="board" id="board"></div>
+    <div class="give">
+      <div>
+        <h2>Every loop is for the kids at CHUV</h2>
+        <p>100% of what we raise goes to Fondation Plan&egrave;tes Enfants Malades. No minimum, no cut, no admin fee.</p>
+      </div>
+      <a href="https://www.fpem.ch" target="_blank" rel="noopener">Donate</a>
+    </div>
+    <div class="mode" id="mode"></div>
+  </section>
+
+  <section role="tabpanel" id="p-signup" aria-labelledby="tab-signup" hidden>
+    <form class="card" id="signupForm" autocomplete="off">
+      <h2>Put a team on the board</h2>
+      <p>Anyone can enter, right up to the gun and during the race. One entry per team &mdash; then keep this page open on one phone and tap it each time you come through the arch.</p>
+      <div class="field">
+        <label for="fName">Team name</label>
+        <input type="text" id="fName" name="fName" maxlength="28" placeholder="Sugar Crash" required>
+      </div>
+      <div class="field">
+        <label for="fRunners">Runner names</label>
+        <input type="text" id="fRunners" name="fRunners" maxlength="60" placeholder="Vincent &amp; Clarinde">
+      </div>
+      <div class="field">
+        <label id="lblFormat">Format</label>
+        <div class="seg" role="group" aria-labelledby="lblFormat">
+          <button type="button" id="fSolo" aria-pressed="true">Solo &mdash; 50 km</button>
+          <button type="button" id="fPair" aria-pressed="false">Pair &mdash; 50 km shared</button>
+        </div>
+      </div>
+      <button class="act lap" type="submit" id="fSubmit" style="width:100%">Join the dash</button>
+      <div class="note">Both formats cover the same 50 km. Pairs split the loops however they like &mdash; alternate, blocks, whatever survives.</div>
+      <div class="err" id="fErr" hidden></div>
+    </form>
+  </section>
+
+  <section role="tabpanel" id="p-info" aria-labelledby="tab-info" hidden>
+    <div class="card">
+      <h2>How the dash works</h2>
+      <p>Fifty laps of the same kilometre. Start together at 10:00, finish whenever your fiftieth loop lands. Donuts sit at the arch. Drinks you bring yourself.</p>
+      <div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px">
+        <div><span class="k">Loop</span><span class="v">1.00 km &middot; flat</span></div>
+        <div><span class="k">Distance</span><span class="v">50 laps</span></div>
+        <div><span class="k">Start</span><span class="v">10:00 sharp</span></div>
+        <div><span class="k">Base</span><span class="v">IMD, Ch. de Bellerive</span></div>
+      </div>
+      <p style="margin-bottom:10px"><b style="color:var(--bone)">Counting your own laps.</b> Find your row, hit the big button as you pass the arch. The board updates for everyone within a second or two. Hit it late? Use <span class="mono">UNDO</span>, it only ever removes the last one.</p>
+      <p style="margin-bottom:10px"><b style="color:var(--bone)">Donuts.</b> Log them. Pace is a number, donuts are the point.</p>
+      <p style="margin-bottom:0"><b style="color:var(--bone)">Pace &amp; projection.</b> Average is taken over your last ten loops, so it follows how you are running now rather than how you started. Projected finish assumes you hold that average for what is left.</p>
+    </div>
+    <div class="mode" id="mode2"></div>
+  </section>
+
+  <footer>
+    <span>Stray 01 &mdash; Donut Dash</span>
+    <span>IMD Run Club &middot; Lausanne</span>
+    <span>For Fondation Plan&egrave;tes Enfants Malades</span>
+  </footer>
+</div>
+
+<script>
+/* =====================================================================
+   STRAY 01 — DONUT DASH · race board
+   ---------------------------------------------------------------------
+   Live and shared. Backed by Firestore on the Firebase project
+   "stray-donut-dash" (eur3 / Europe). Anyone with the link can enter a
+   team and tap their own laps — no login, nothing private stored.
+
+   AFTER THE RACE, freeze the board: Firebase console >
+   Firestore Database > Rules, change the two "if true" lines to
+   "if false", Publish. The board stays readable, nothing new lands.
+
+   These values are meant to be public — a Firebase web config ships in
+   the page source by design. What protects the data is the Firestore
+   rules, not this object.
+   ===================================================================== */
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBFDiSkVOgtMxWrqjX9kvfAvrtaY6rWPQY",
+  authDomain: "stray-donut-dash.firebaseapp.com",
+  projectId: "stray-donut-dash",
+  storageBucket: "stray-donut-dash.firebasestorage.app",
+  messagingSenderId: "1096018041976",
+  appId: "1:1096018041976:web:1b456df956e1f93984a18d"
+};
+
+/* Race constants — edit if anything moves. */
+const RACE = {
+  laps: 50,
+  startISO: '2026-09-19T10:00:00+02:00',
+  donateUrl: 'https://www.fpem.ch'
+};
+
+/* ------------------------------------------------------------------ */
+/* helpers                                                             */
+/* ------------------------------------------------------------------ */
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = n => String(n).padStart(2, '0');
+
+function hms(ms) {
+  if (!isFinite(ms)) return '--:--:--';
+  const neg = ms < 0; ms = Math.abs(ms);
+  const s = Math.floor(ms / 1000);
+  return (neg ? '-' : '') + pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60);
+}
+function mmss(ms) {
+  if (!isFinite(ms) || ms <= 0) return '—';
+  const s = Math.round(ms / 1000);
+  return Math.floor(s / 60) + ':' + pad(s % 60);
+}
+function clockOfDay(ts) {
+  const d = new Date(ts);
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function newId() {
+  return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+/* Average lap from the last 10 completed loops. */
+function avgLapMs(lapAt) {
+  if (!lapAt || lapAt.length < 2) return NaN;
+  const t = lapAt.slice(-11);
+  return (t[t.length - 1] - t[0]) / (t.length - 1);
+}
+
+/* ------------------------------------------------------------------ */
+/* store — Firestore when configured, this device when not             */
+/* ------------------------------------------------------------------ */
+const LS_TEAMS = 'stray.dd.teams.v1';
+const LS_MINE = 'stray.dd.mine.v1';
+
+function lsGet(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* private mode */ }
+}
+
+let mine = lsGet(LS_MINE, []);
+function claim(id) { if (!mine.includes(id)) { mine.push(id); lsSet(LS_MINE, mine); } }
+
+const store = {
+  mode: 'device',
+  teams: [],
+  _cb: null,
+  onChange(cb) { this._cb = cb; },
+  _emit() { if (this._cb) this._cb(this.teams); }
+};
+
+/* ---- device mode ---- */
+/* Four invented teams so an empty board shows what race day looks like.
+   Device mode only — they are never written to a live Firestore board. */
+function exampleTeams() {
+  const now = Date.now();
+  const mk = (name, runners, fmt, laps, lapMs, donuts) => {
+    const lapAt = [];
+    for (let i = laps; i > 0; i--) lapAt.push(now - i * lapMs);
+    return { id: newId(), name, runners, format: fmt, laps, donuts, lapAt, createdAt: now - 9e6, demo: true };
+  };
+  return [
+    mk('Sugar Crash', 'Ana & Tom', 'pair', 22, 5.4 * 60000, 6),
+    mk('Bellerive Bakery', 'Jo', 'solo', 19, 6.1 * 60000, 3),
+    mk('Loop Merchants', 'Ines & Karim', 'pair', 17, 6.6 * 60000, 9),
+    mk('Second Breakfast', 'Ruben', 'solo', 14, 7.2 * 60000, 2)
+  ];
+}
+
+const deviceStore = {
+  start() {
+    store.teams = lsGet(LS_TEAMS, []);
+    if (!store.teams.length && !lsGet('stray.dd.seeded', false)) {
+      store.teams = exampleTeams();
+      lsSet(LS_TEAMS, store.teams);
+      lsSet('stray.dd.seeded', true);
+    }
+    store._emit();
+    window.addEventListener('storage', e => {
+      if (e.key === LS_TEAMS) { store.teams = lsGet(LS_TEAMS, []); store._emit(); }
+    });
+  },
+  _save() { lsSet(LS_TEAMS, store.teams); store._emit(); },
+  add(team) { store.teams.push(team); this._save(); return Promise.resolve(team.id); },
+  patch(id, fields) {
+    const t = store.teams.find(x => x.id === id);
+    if (t) Object.assign(t, fields);
+    this._save();
+    return Promise.resolve();
+  }
+};
+
+/* ---- firestore mode ---- */
+let fsApi = null;
+async function startFirestore(cfg) {
+  const appMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+  const fsMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const app = appMod.initializeApp(cfg);
+  const db = fsMod.getFirestore(app);
+  const col = fsMod.collection(db, 'teams');
+  fsApi = {
+    add: async team => {
+      const { id, ...body } = team;
+      await fsMod.setDoc(fsMod.doc(db, 'teams', id), body);
+      return id;
+    },
+    patch: (id, fields) => fsMod.updateDoc(fsMod.doc(db, 'teams', id), fields)
+  };
+  fsMod.onSnapshot(col, snap => {
+    store.teams = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    store._emit();
+  }, err => {
+    console.error('Firestore stream error', err);
+    setBanner('Lost the connection to the live board. Laps you tap are still counted on this phone — reload when you have signal.');
+  });
+}
+
+const api = {
+  add: team => (store.mode === 'live' ? fsApi.add(team) : deviceStore.add(team)),
+  patch: (id, f) => (store.mode === 'live' ? fsApi.patch(id, f) : deviceStore.patch(id, f))
+};
+
+/* ------------------------------------------------------------------ */
+/* actions                                                             */
+/* ------------------------------------------------------------------ */
+async function addTeam(name, runners, format) {
+  const team = {
+    id: newId(),
+    name: name,
+    runners: runners || '',
+    format: format,
+    laps: 0,
+    donuts: 0,
+    lapAt: [],
+    createdAt: Date.now()
+  };
+  if (store.mode === 'live') {
+    // optimistic: the snapshot will replace this within a moment
+    store.teams = store.teams.concat([team]);
+    store._emit();
+  }
+  await api.add(team);
+  claim(team.id);
+  render();
+  return team.id;
+}
+
+function local(id) { return store.teams.find(t => t.id === id); }
+
+async function logLap(id) {
+  const t = local(id); if (!t || t.laps >= RACE.laps) return;
+  const lapAt = (t.lapAt || []).concat([Date.now()]).slice(-40);
+  const laps = t.laps + 1;
+  t.laps = laps; t.lapAt = lapAt; store._emit();
+  await api.patch(id, { laps: laps, lapAt: lapAt });
+}
+async function undoLap(id) {
+  const t = local(id); if (!t || t.laps <= 0) return;
+  const lapAt = (t.lapAt || []).slice(0, -1);
+  const laps = t.laps - 1;
+  t.laps = laps; t.lapAt = lapAt; store._emit();
+  await api.patch(id, { laps: laps, lapAt: lapAt });
+}
+async function logDonut(id, delta) {
+  const t = local(id); if (!t) return;
+  const donuts = Math.max(0, (t.donuts || 0) + delta);
+  t.donuts = donuts; store._emit();
+  await api.patch(id, { donuts: donuts });
+}
+
+/* ------------------------------------------------------------------ */
+/* rendering                                                           */
+/* ------------------------------------------------------------------ */
+const boardEl = $('#board');
+
+function sortTeams(list) {
+  return list.slice().sort((a, b) => {
+    if (b.laps !== a.laps) return b.laps - a.laps;
+    const la = (a.lapAt || []).slice(-1)[0] || Infinity;
+    const lb = (b.lapAt || []).slice(-1)[0] || Infinity;
+    if (la !== lb) return la - lb;
+    return (a.createdAt || 0) - (b.createdAt || 0);
+  });
+}
+
+function rowHtml(t, pos) {
+  const isMine = mine.includes(t.id);
+  const done = t.laps >= RACE.laps;
+  const pct = Math.min(100, (t.laps / RACE.laps) * 100);
+  const avg = avgLapMs(t.lapAt);
+  const lastAt = (t.lapAt || []).slice(-1)[0];
+  const remaining = RACE.laps - t.laps;
+  const proj = (isFinite(avg) && remaining > 0 && lastAt) ? lastAt + remaining * avg : NaN;
+
+  const projTxt = done ? clockOfDay(lastAt) : (isFinite(proj) ? '~' + clockOfDay(proj) : '—');
+  const projKey = done ? 'Finished' : 'Proj. finish';
+
+  return '' +
+    '<article class="row' + (isMine ? ' mine' : '') + (done ? ' done' : '') + (pos <= 3 && !done ? ' pod' : '') + '" data-id="' + t.id + '">' +
+      '<div class="pos mono">' + (done ? '&#10003;' : pos) + '</div>' +
+      '<div class="who">' +
+        '<div class="name">' + esc(t.name) + '</div>' +
+        '<div class="sub">' +
+          '<span class="chip' + (t.format === 'pair' ? ' pair' : '') + '">' + (t.format === 'pair' ? 'Pair' : 'Solo') + '</span>' +
+          (t.demo ? '<span class="chip">Example</span>' : '') +
+          (t.runners ? '<span>' + esc(t.runners) + '</span>' : '') +
+          (isMine ? '<span style="color:var(--signal)">Your team</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="km">' + t.laps + '<small>/ ' + RACE.laps + ' KM</small></div>' +
+      '<div class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
+      '<div class="stats">' +
+        '<div><span class="k">Avg lap</span><span class="v">' + mmss(avg) + '</span></div>' +
+        '<div><span class="k">Last through</span><span class="v">' + (lastAt ? clockOfDay(lastAt) : '—') + '</span></div>' +
+        '<div><span class="k">' + projKey + '</span><span class="v">' + projTxt + '</span></div>' +
+        '<div><span class="k">Donuts</span><span class="v pink">' + (t.donuts || 0) + '</span></div>' +
+      '</div>' +
+      '<div class="acts">' +
+        (done
+          ? '<span class="undo">Fifty loops. Go and sit down.</span>'
+          : (isMine
+              ? '<button class="act lap" data-act="lap">Lap done &mdash; ' + (t.laps + 1) + ' of ' + RACE.laps + '</button>'
+              : '<button class="act ghost" data-act="lap">+1 lap</button>')) +
+        '<button class="act donut" data-act="donut">+1 donut</button>' +
+        (isMine && t.laps > 0 ? '<button class="act ghost" data-act="undo">Undo lap</button>' : '') +
+        (isMine && (t.donuts || 0) > 0 ? '<button class="act ghost" data-act="undonut">Undo donut</button>' : '') +
+      '</div>' +
+    '</article>';
+}
+
+function render() {
+  const sorted = sortTeams(store.teams);
+  const ordered = sorted.slice().sort((a, b) => {
+    const am = mine.includes(a.id) ? 0 : 1, bm = mine.includes(b.id) ? 0 : 1;
+    return am - bm;
+  });
+  const posOf = {};
+  sorted.forEach((t, i) => { posOf[t.id] = i + 1; });
+
+  boardEl.innerHTML = ordered.length
+    ? ordered.map(t => rowHtml(t, posOf[t.id])).join('')
+    : '<div class="empty">No teams on the board yet. Open <b>Sign up</b> and put the first one on.</div>';
+
+  const totalKm = store.teams.reduce((s, t) => s + (t.laps || 0), 0);
+  const totalDonuts = store.teams.reduce((s, t) => s + (t.donuts || 0), 0);
+  $('#tKm').innerHTML = totalKm + '<small>KM</small>';
+  $('#tTeams').textContent = store.teams.length;
+  $('#tDonuts').textContent = totalDonuts;
+}
+
+boardEl.addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]');
+  if (!btn) return;
+  const id = btn.closest('.row').dataset.id;
+  const act = btn.dataset.act;
+  btn.disabled = true;
+  const done = () => { btn.disabled = false; };
+  if (act === 'lap') { claim(id); logLap(id).then(done, done); }
+  else if (act === 'undo') undoLap(id).then(done, done);
+  else if (act === 'donut') logDonut(id, +1).then(done, done);
+  else if (act === 'undonut') logDonut(id, -1).then(done, done);
+});
+
+/* ------------------------------------------------------------------ */
+/* clock                                                               */
+/* ------------------------------------------------------------------ */
+const startMs = Date.parse(RACE.startISO);
+function tickClock() {
+  const d = Date.now() - startMs;
+  const el = $('#tClock'), k = $('#kClock');
+  el.textContent = hms(Math.abs(d));
+  if (k) k.textContent = d < 0 ? 'Starts in' : 'Race clock';
+  el.style.color = d < 0 ? 'var(--muted)' : '';
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+/* ------------------------------------------------------------------ */
+/* tabs                                                                */
+/* ------------------------------------------------------------------ */
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(b => {
+      const on = b === btn;
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
+    });
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* sign-up form                                                        */
+/* ------------------------------------------------------------------ */
+let format = 'solo';
+$('#fSolo').addEventListener('click', () => setFormat('solo'));
+$('#fPair').addEventListener('click', () => setFormat('pair'));
+function setFormat(f) {
+  format = f;
+  $('#fSolo').setAttribute('aria-pressed', f === 'solo' ? 'true' : 'false');
+  $('#fPair').setAttribute('aria-pressed', f === 'pair' ? 'true' : 'false');
+}
+
+$('#signupForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const errEl = $('#fErr');
+  const name = $('#fName').value.trim();
+  const runners = $('#fRunners').value.trim();
+  errEl.hidden = true;
+
+  if (name.length < 2) {
+    errEl.textContent = 'Give the team a name — two characters or more.';
+    errEl.hidden = false; return;
+  }
+  if (store.teams.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+    errEl.textContent = 'That name is already on the board. Pick another one so the timing table can tell you apart.';
+    errEl.hidden = false; return;
+  }
+
+  const submit = $('#fSubmit');
+  submit.disabled = true;
+  submit.textContent = 'Putting you on the board…';
+  try {
+    await addTeam(name, runners, format);
+    $('#fName').value = ''; $('#fRunners').value = ''; setFormat('solo');
+    $('#tab-board').click();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    console.error(err);
+    errEl.textContent = 'Could not reach the board. Check your signal and try once more.';
+    errEl.hidden = false;
+  } finally {
+    submit.disabled = false;
+    submit.textContent = 'Join the dash';
+  }
+});
+
+/* ------------------------------------------------------------------ */
+/* mode banner                                                         */
+/* ------------------------------------------------------------------ */
+function setBanner(html) {
+  ['#mode', '#mode2'].forEach(sel => { const el = $(sel); if (el) el.innerHTML = html; });
+}
+const LIVE_MSG = '<b>Live board</b><br>Every phone on this link sees the same board. Sign up, then tap your own laps as you come through the arch.';
+const DEVICE_MSG = '<b>Device mode</b><br>Fully working, but the board lives on this device only — nothing is shared with other phones yet. Add a Firebase config at the top of the page source to make it live for everyone.<br>The four teams on the board are examples, so you can see race day. <button class="act ghost" id="clearDemo" style="margin-top:8px">Clear examples</button>';
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#clearDemo')) return;
+  store.teams = store.teams.filter(t => !t.demo);
+  lsSet(LS_TEAMS, store.teams);
+  document.querySelectorAll('#clearDemo').forEach(b => b.remove());
+  render();
+});
+
+document.querySelectorAll('.give a').forEach(a => { a.href = RACE.donateUrl; });
+
+/* ------------------------------------------------------------------ */
+/* boot                                                                */
+/* ------------------------------------------------------------------ */
+store.onChange(render);
+
+(async function boot() {
+  if (FIREBASE_CONFIG && FIREBASE_CONFIG.projectId) {
+    setBanner(LIVE_MSG);
+    try {
+      store.mode = 'live';
+      await startFirestore(FIREBASE_CONFIG);
+    } catch (err) {
+      console.error('Firebase failed to start', err);
+      store.mode = 'device';
+      setBanner('<b>Offline board</b><br>Could not reach the live board, so this device is keeping its own count. Laps are safe here — reload once you have signal.');
+      deviceStore.start();
+    }
+  } else {
+    setBanner(DEVICE_MSG);
+    deviceStore.start();
+  }
+  render();
+})();
+</script>
+</body>
+</html>
