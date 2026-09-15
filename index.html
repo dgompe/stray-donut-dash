@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Live race board for STRAY 01 Donut Dash - 50 km in 1 km loops, IMD Lausanne.">
+<meta name="description" content="Live points board for STRAY 01 Donut Dash - 50 points wins, IMD Lausanne.">
 <meta name="theme-color" content="#1C2331">
 <title>Donut Dash Race Board</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -114,7 +114,8 @@
   .bar{grid-column:1/-1;height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden}
   :root[data-theme="light"] .bar{background:var(--line)}
   .bar i{display:block;height:100%;background:var(--mauve);transition:width .4s ease}
-  .stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+  @media(max-width:620px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
   .stats .k{display:block;font-size:9px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
   .stats .v{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
   .stats .v.hi{color:var(--mauve)}
@@ -126,12 +127,24 @@
     background:var(--surface-2);color:var(--ink);
   }
   button.act:focus-visible{outline:2px solid var(--mauve);outline-offset:2px}
-  button.act.lap{background:var(--mauve);border-color:var(--mauve);color:#1C2331;font-weight:600;flex:1 1 170px}
+  button.act.lap{background:var(--mauve);border-color:var(--mauve);color:#1C2331;font-weight:600;flex:1 1 120px}
+  button.act.alt{flex:1 1 110px;text-align:center}
   button.act.alt{border-color:var(--mauve-dim);color:var(--mauve);background:none}
   button.act.ghost{background:none;color:var(--muted)}
   button.act:disabled{opacity:.45;cursor:not-allowed}
   .fin{font-size:10px;font-weight:400;letter-spacing:var(--track);text-transform:uppercase;color:var(--mauve)}
 
+  .tally{margin-top:10px;font-size:10px;font-weight:400;letter-spacing:var(--track);
+         text-transform:uppercase;color:var(--muted);text-align:right}
+  .winline{margin-top:20px;border:1px solid var(--mauve);border-radius:var(--r);background:var(--surface-2);
+           padding:14px 16px;font-size:13px;font-weight:400;color:var(--ink)}
+  .winline b{display:block;font-family:"Archivo Black","Poppins",Impact,sans-serif;font-weight:400;
+             font-size:15px;text-transform:uppercase;color:var(--mauve);margin-bottom:3px;letter-spacing:.02em}
+  .rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin:0 0 18px}
+  .rules div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:7px}
+  .rules span:first-child{color:var(--ink);font-weight:400}
+  .rules span:last-child{color:var(--mauve);font-weight:600;white-space:nowrap}
+  @media(max-width:520px){.rules{grid-template-columns:1fr}}
   .empty{border:1px dashed var(--line);border-radius:var(--r);padding:32px 20px;text-align:center;color:var(--muted)}
 
   /* ---------- forms ---------- */
@@ -232,7 +245,7 @@ c255 -203 350 -449 267 -689 -20 -58 -55 -127 -70 -141 -10 -10 -80 -120 -80
       <h1 style="margin-top:8px">Donut Dash</h1>
     </div>
     <div class="meta">
-      50&nbsp;km &middot; 1&nbsp;km loops<br>
+      50&nbsp;points to win<br>
       <b>Sat 19.09 &middot; 10:00</b><br>
       IMD Campus, Lausanne
     </div>
@@ -242,9 +255,9 @@ c255 -203 350 -449 267 -689 -20 -58 -55 -127 -70 -141 -10 -10 -80 -120 -80
 <div class="wrap">
 
   <div class="strip">
-    <div><span class="k">Field total</span><span class="v" id="tKm">0<small>KM</small></span></div>
+    <div><span class="k">Field points</span><span class="v" id="tPts">0</span></div>
     <div><span class="k">Teams out</span><span class="v" id="tTeams">0</span></div>
-    <div><span class="k">Donuts down</span><span class="v" id="tDonuts">0</span></div>
+    <div><span class="k">Km run</span><span class="v" id="tKm">0<small>KM</small></span></div>
     <div><span class="k" id="kClock">Starts in</span><span class="v" id="tClock" style="font-size:22px">--:--:--</span></div>
   </div>
 
@@ -254,7 +267,10 @@ c255 -203 350 -449 267 -689 -20 -58 -55 -127 -70 -141 -10 -10 -80 -120 -80
     <button role="tab" id="tab-info" aria-controls="p-info" aria-selected="false">Race info</button>
   </nav>
 
+  <div class="tally" id="tally"></div>
+
   <section role="tabpanel" id="p-board" aria-labelledby="tab-board">
+    <div class="winline" id="winline" hidden></div>
     <div class="board" id="board"></div>
     <div class="mode" id="mode"></div>
   </section>
@@ -287,16 +303,23 @@ c255 -203 350 -449 267 -689 -20 -58 -55 -127 -70 -141 -10 -10 -80 -120 -80
   <section role="tabpanel" id="p-info" aria-labelledby="tab-info" hidden>
     <div class="card">
       <h2>How the dash works</h2>
-      <p>Fifty laps of the same kilometre. Start together at 10:00, finish whenever your fiftieth loop lands. Donuts sit at the arch. Drinks you bring yourself.</p>
+      <p>Fifty points wins it. Points come from running, and from what is on the table. The first team to fifty ends the race for everyone.</p>
+      <div class="rules">
+        <div><span>1 km run</span><span>1 point</span></div>
+        <div><span>1 beer</span><span>1 point</span></div>
+        <div><span>1 donut</span><span>1 point</span></div>
+        <div><span>1 bottle of wine</span><span>6 points</span></div>
+      </div>
       <div class="facts">
+        <div><span class="k">Target</span><span class="v">50 points</span></div>
         <div><span class="k">Loop</span><span class="v">1.00 km &middot; flat</span></div>
-        <div><span class="k">Distance</span><span class="v">50 laps</span></div>
         <div><span class="k">Start</span><span class="v">10:00 sharp</span></div>
         <div><span class="k">Base</span><span class="v">IMD, Ch. de Bellerive</span></div>
       </div>
-      <p style="margin-bottom:12px"><b style="color:var(--ink);font-weight:600">Counting your own laps.</b> Find your row, hit the big button as you pass the arch. The board updates for everyone within a second or two. Hit it late? Use Undo, it only ever removes the last one.</p>
-      <p style="margin-bottom:12px"><b style="color:var(--ink);font-weight:600">Donuts.</b> Log them. Pace is a number, donuts are the point.</p>
-      <p style="margin-bottom:0"><b style="color:var(--ink);font-weight:600">Pace &amp; projection.</b> Average is taken over your last ten loops, so it follows how you are running now rather than how you started. Projected finish assumes you hold that average for what is left.</p>
+      <p style="margin-bottom:12px"><b style="color:var(--ink);font-weight:600">Scoring your own team.</b> Find your row and tap as you go &mdash; a lap, a beer, a donut, a bottle. The board updates for everyone within a second or two. Tapped the wrong one? <b style="color:var(--ink);font-weight:600">Undo last</b> removes whatever you logged most recently.</p>
+      <p style="margin-bottom:12px"><b style="color:var(--ink);font-weight:600">One phone per team.</b> If two people score the same team at once, one of the taps gets lost. Pick a phone and stick with it.</p>
+      <p style="margin-bottom:12px"><b style="color:var(--ink);font-weight:600">Pts / hr and On 50 at.</b> The rate is taken over your last ten taps, so it follows how you are scoring now. The projection assumes you keep that rate up.</p>
+      <p style="margin-bottom:0">Drink water between the other things, and nobody drives afterwards. It is still fifty kilometres of road out there.</p>
     </div>
     <div class="mode" id="mode2"></div>
   </section>
@@ -355,19 +378,14 @@ c255 -203 350 -449 267 -689 -20 -58 -55 -127 -70 -141 -10 -10 -80 -120 -80
 
 <script>
 /* =====================================================================
-   STRAY 01 — DONUT DASH · race board
+   STRAY 01 — DONUT DASH · points board
    ---------------------------------------------------------------------
-   Live and shared. Backed by Firestore on the Firebase project
-   "stray-donut-dash" (eur3 / Europe). Anyone with the link can enter a
-   team and tap their own laps — no login, nothing private stored.
+   Scoring: 1 km = 1 point. 1 beer = 1 point. 1 donut = 1 point.
+   1 bottle of wine = 6 points. First team to 50 points ends the race
+   for everyone.
 
-   AFTER THE RACE, freeze the board: Firebase console >
-   Firestore Database > Rules, change the two "if true" lines to
-   "if false", Publish. The board stays readable, nothing new lands.
-
-   These values are meant to be public — a Firebase web config ships in
-   the page source by design. What protects the data is the Firestore
-   rules, not this object.
+   Live and shared, backed by Firestore. Anyone with the link can enter
+   a team and tap their own score — no login, nothing private stored.
    ===================================================================== */
 
 const FIREBASE_CONFIG = {
@@ -379,11 +397,18 @@ const FIREBASE_CONFIG = {
   appId: "1:1096018041976:web:1b456df956e1f93984a18d"
 };
 
-/* Race constants — edit if anything moves. */
 const RACE = {
-  laps: 50,
+  target: 50,
   startISO: '2026-09-19T10:00:00+02:00'
 };
+
+const SCORE = {
+  km:    { pts: 1, label: 'Km',     btn: '+1 km' },
+  beer:  { pts: 1, label: 'Beers',  btn: '+1 beer' },
+  donut: { pts: 1, label: 'Donuts', btn: '+1 donut' },
+  wine:  { pts: 6, label: 'Wine',   btn: 'Bottle +6' }
+};
+const KINDS = ['km', 'beer', 'donut', 'wine'];
 
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
@@ -395,14 +420,8 @@ const pad = n => String(n).padStart(2, '0');
 
 function hms(ms) {
   if (!isFinite(ms)) return '--:--:--';
-  const neg = ms < 0; ms = Math.abs(ms);
-  const s = Math.floor(ms / 1000);
-  return (neg ? '-' : '') + pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60);
-}
-function mmss(ms) {
-  if (!isFinite(ms) || ms <= 0) return '—';
-  const s = Math.round(ms / 1000);
-  return Math.floor(s / 60) + ':' + pad(s % 60);
+  const s = Math.floor(Math.abs(ms) / 1000);
+  return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60);
 }
 function clockOfDay(ts) {
   const d = new Date(ts);
@@ -412,18 +431,36 @@ function newId() {
   return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-/* Average lap from the last 10 completed loops. */
-function avgLapMs(lapAt) {
-  if (!lapAt || lapAt.length < 2) return NaN;
-  const t = lapAt.slice(-11);
-  return (t[t.length - 1] - t[0]) / (t.length - 1);
+function pointsOf(t) {
+  return KINDS.reduce((s, k) => s + (t[k] || 0) * SCORE[k].pts, 0);
+}
+
+/* Points per hour over the last ten scoring taps. */
+function rateOf(t) {
+  const log = (t.log || []).slice(-11);
+  if (log.length < 2) return NaN;
+  const hours = (log[log.length - 1].t - log[0].t) / 3600000;
+  if (hours <= 0) return NaN;
+  let pts = 0;
+  for (let i = 1; i < log.length; i++) pts += SCORE[log[i].k] ? SCORE[log[i].k].pts : 0;
+  return pts / hours;
+}
+
+/* The moment a team crossed the target, or NaN. */
+function finishedAt(t) {
+  let running = 0;
+  for (const e of (t.log || [])) {
+    running += SCORE[e.k] ? SCORE[e.k].pts : 0;
+    if (running >= RACE.target) return e.t;
+  }
+  return NaN;
 }
 
 /* ------------------------------------------------------------------ */
 /* store — Firestore when configured, this device when not             */
 /* ------------------------------------------------------------------ */
-const LS_TEAMS = 'stray.dd.teams.v1';
-const LS_MINE = 'stray.dd.mine.v1';
+const LS_TEAMS = 'stray.dd.teams.v2';
+const LS_MINE = 'stray.dd.mine.v2';
 
 function lsGet(key, fallback) {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
@@ -445,30 +482,36 @@ const store = {
 };
 
 /* ---- device mode ---- */
-/* Four invented teams so an empty board shows what race day looks like.
-   Device mode only — they are never written to a live Firestore board. */
+/* Invented teams so an empty board shows what race day looks like.
+   Device mode only — never written to a live Firestore board. */
 function exampleTeams() {
   const now = Date.now();
-  const mk = (name, runners, fmt, laps, lapMs, donuts) => {
-    const lapAt = [];
-    for (let i = laps; i > 0; i--) lapAt.push(now - i * lapMs);
-    return { id: newId(), name, runners, format: fmt, laps, donuts, lapAt, createdAt: now - 9e6, demo: true };
+  const mk = (name, runners, fmt, counts, spanMin) => {
+    const log = [];
+    KINDS.forEach(k => { for (let i = 0; i < (counts[k] || 0); i++) log.push({ k: k, t: 0 }); });
+    for (let i = log.length - 1; i >= 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = log[i]; log[i] = log[j]; log[j] = tmp;
+    }
+    log.forEach((e, i) => { e.t = now - (log.length - i) * (spanMin * 60000 / Math.max(1, log.length)); });
+    return Object.assign({ id: newId(), name: name, runners: runners, format: fmt,
+                           log: log, createdAt: now - 9e6, demo: true }, counts);
   };
   return [
-    mk('Sugar Crash', 'Ana & Tom', 'pair', 22, 5.4 * 60000, 6),
-    mk('Bellerive Bakery', 'Jo', 'solo', 19, 6.1 * 60000, 3),
-    mk('Loop Merchants', 'Ines & Karim', 'pair', 17, 6.6 * 60000, 9),
-    mk('Second Breakfast', 'Ruben', 'solo', 14, 7.2 * 60000, 2)
+    mk('Sugar Crash', 'Ana & Tom', 'pair', { km: 18, beer: 4, donut: 6, wine: 1 }, 150),
+    mk('Bellerive Bakery', 'Jo', 'solo', { km: 21, beer: 1, donut: 3, wine: 0 }, 150),
+    mk('Loop Merchants', 'Ines & Karim', 'pair', { km: 9, beer: 6, donut: 5, wine: 1 }, 150),
+    mk('Second Breakfast', 'Ruben', 'solo', { km: 14, beer: 2, donut: 2, wine: 0 }, 150)
   ];
 }
 
 const deviceStore = {
   start() {
     store.teams = lsGet(LS_TEAMS, []);
-    if (!store.teams.length && !lsGet('stray.dd.seeded', false)) {
+    if (!store.teams.length && !lsGet('stray.dd.seeded.v2', false)) {
       store.teams = exampleTeams();
       lsSet(LS_TEAMS, store.teams);
-      lsSet('stray.dd.seeded', true);
+      lsSet('stray.dd.seeded.v2', true);
     }
     store._emit();
     window.addEventListener('storage', e => {
@@ -495,9 +538,10 @@ async function startFirestore(cfg) {
   const col = fsMod.collection(db, 'teams');
   fsApi = {
     add: async team => {
-      const { id, ...body } = team;
-      await fsMod.setDoc(fsMod.doc(db, 'teams', id), body);
-      return id;
+      const body = Object.assign({}, team);
+      delete body.id;
+      await fsMod.setDoc(fsMod.doc(db, 'teams', team.id), body);
+      return team.id;
     },
     patch: (id, fields) => fsMod.updateDoc(fsMod.doc(db, 'teams', id), fields)
   };
@@ -506,7 +550,7 @@ async function startFirestore(cfg) {
     store._emit();
   }, err => {
     console.error('Firestore stream error', err);
-    setBanner('Lost the connection to the live board. Laps you tap are still counted on this phone — reload when you have signal.');
+    setBanner('Lost the connection to the live board. What you tap is still counted on this phone — reload when you have signal.');
   });
 }
 
@@ -519,21 +563,9 @@ const api = {
 /* actions                                                             */
 /* ------------------------------------------------------------------ */
 async function addTeam(name, runners, format) {
-  const team = {
-    id: newId(),
-    name: name,
-    runners: runners || '',
-    format: format,
-    laps: 0,
-    donuts: 0,
-    lapAt: [],
-    createdAt: Date.now()
-  };
-  if (store.mode === 'live') {
-    // optimistic: the snapshot will replace this within a moment
-    store.teams = store.teams.concat([team]);
-    store._emit();
-  }
+  const team = { id: newId(), name: name, runners: runners || '', format: format,
+                 km: 0, beer: 0, donut: 0, wine: 0, log: [], createdAt: Date.now() };
+  if (store.mode === 'live') { store.teams = store.teams.concat([team]); store._emit(); }
   await api.add(team);
   claim(team.id);
   render();
@@ -542,25 +574,35 @@ async function addTeam(name, runners, format) {
 
 function local(id) { return store.teams.find(t => t.id === id); }
 
-async function logLap(id) {
-  const t = local(id); if (!t || t.laps >= RACE.laps) return;
-  const lapAt = (t.lapAt || []).concat([Date.now()]).slice(-40);
-  const laps = t.laps + 1;
-  t.laps = laps; t.lapAt = lapAt; store._emit();
-  await api.patch(id, { laps: laps, lapAt: lapAt });
+async function score(id, kind) {
+  if (winner()) return;
+  const t = local(id); if (!t || !SCORE[kind]) return;
+  const log = (t.log || []).concat([{ k: kind, t: Date.now() }]).slice(-120);
+  const n = (t[kind] || 0) + 1;
+  t[kind] = n; t.log = log; store._emit();
+  const patch = { log: log }; patch[kind] = n;
+  await api.patch(id, patch);
 }
-async function undoLap(id) {
-  const t = local(id); if (!t || t.laps <= 0) return;
-  const lapAt = (t.lapAt || []).slice(0, -1);
-  const laps = t.laps - 1;
-  t.laps = laps; t.lapAt = lapAt; store._emit();
-  await api.patch(id, { laps: laps, lapAt: lapAt });
-}
-async function logDonut(id, delta) {
+
+async function undo(id) {
   const t = local(id); if (!t) return;
-  const donuts = Math.max(0, (t.donuts || 0) + delta);
-  t.donuts = donuts; store._emit();
-  await api.patch(id, { donuts: donuts });
+  const log = (t.log || []).slice();
+  const last = log.pop();
+  if (!last) return;
+  const n = Math.max(0, (t[last.k] || 0) - 1);
+  t[last.k] = n; t.log = log; store._emit();
+  const patch = { log: log }; patch[last.k] = n;
+  await api.patch(id, patch);
+}
+
+/* The first team to reach the target, if any. */
+function winner() {
+  let best = null;
+  for (const t of store.teams) {
+    const at = finishedAt(t);
+    if (isFinite(at) && (!best || at < best.at)) best = { team: t, at: at };
+  }
+  return best;
 }
 
 /* ------------------------------------------------------------------ */
@@ -570,77 +612,95 @@ const boardEl = $('#board');
 
 function sortTeams(list) {
   return list.slice().sort((a, b) => {
-    if (b.laps !== a.laps) return b.laps - a.laps;
-    const la = (a.lapAt || []).slice(-1)[0] || Infinity;
-    const lb = (b.lapAt || []).slice(-1)[0] || Infinity;
-    if (la !== lb) return la - lb;
+    const pa = pointsOf(a), pb = pointsOf(b);
+    if (pb !== pa) return pb - pa;
+    const la = (a.log || []).slice(-1)[0], lb = (b.log || []).slice(-1)[0];
+    const ta = la ? la.t : Infinity, tb = lb ? lb.t : Infinity;
+    if (ta !== tb) return ta - tb;
     return (a.createdAt || 0) - (b.createdAt || 0);
   });
 }
 
-function rowHtml(t, pos) {
+function rowHtml(t, pos, over) {
   const isMine = mine.includes(t.id);
-  const done = t.laps >= RACE.laps;
-  const pct = Math.min(100, (t.laps / RACE.laps) * 100);
-  const avg = avgLapMs(t.lapAt);
-  const lastAt = (t.lapAt || []).slice(-1)[0];
-  const remaining = RACE.laps - t.laps;
-  const proj = (isFinite(avg) && remaining > 0 && lastAt) ? lastAt + remaining * avg : NaN;
+  const pts = pointsOf(t);
+  const fin = finishedAt(t);
+  const isWinner = over && over.team.id === t.id;
+  const pct = Math.min(100, (pts / RACE.target) * 100);
+  const rate = rateOf(t);
+  const remaining = RACE.target - pts;
+  const proj = (isFinite(rate) && rate > 0 && remaining > 0)
+    ? Date.now() + (remaining / rate) * 3600000 : NaN;
 
-  const projTxt = done ? clockOfDay(lastAt) : (isFinite(proj) ? '~' + clockOfDay(proj) : '—');
-  const projKey = done ? 'Finished' : 'Proj. finish';
+  let acts;
+  if (over) {
+    acts = isWinner
+      ? '<span class="fin">Fifty points. Race over at ' + clockOfDay(over.at) + '.</span>'
+      : '<span class="fin" style="color:var(--muted)">Race over &mdash; ' + esc(over.team.name) + ' got there first.</span>';
+  } else if (isMine) {
+    acts = KINDS.map(k =>
+      '<button class="act ' + (k === 'km' ? 'lap' : 'alt') + '" data-act="' + k + '">' + SCORE[k].btn + '</button>'
+    ).join('') + ((t.log || []).length
+      ? '<button class="act ghost" data-act="undo">Undo last</button>' : '');
+  } else {
+    acts = '<button class="act ghost" data-act="claim">This is us &mdash; let me score</button>';
+  }
 
   return '' +
-    '<article class="row' + (isMine ? ' mine' : '') + (done ? ' done' : '') + (pos <= 3 && !done ? ' pod' : '') + '" data-id="' + t.id + '">' +
-      '<div class="pos mono">' + (done ? '&#10003;' : pos) + '</div>' +
+    '<article class="row' + (isMine ? ' mine' : '') + (isWinner ? ' done' : '') +
+      (pos <= 3 && !isWinner ? ' pod' : '') + '" data-id="' + t.id + '">' +
+      '<div class="pos">' + (isWinner ? '&#9733;' : pos) + '</div>' +
       '<div class="who">' +
         '<div class="name">' + esc(t.name) + '</div>' +
         '<div class="sub">' +
           '<span class="chip' + (t.format === 'pair' ? ' pair' : '') + '">' + (t.format === 'pair' ? 'Pair' : 'Solo') + '</span>' +
           (t.demo ? '<span class="chip">Example</span>' : '') +
           (t.runners ? '<span>' + esc(t.runners) + '</span>' : '') +
-          (isMine ? '<span style="color:var(--signal)">Your team</span>' : '') +
+          (isMine ? '<span style="color:var(--mauve)">Your team</span>' : '') +
         '</div>' +
       '</div>' +
-      '<div class="km">' + t.laps + '<small>/ ' + RACE.laps + ' KM</small></div>' +
+      '<div class="km">' + pts + '<small>/ ' + RACE.target + ' PTS</small></div>' +
       '<div class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
       '<div class="stats">' +
-        '<div><span class="k">Avg lap</span><span class="v">' + mmss(avg) + '</span></div>' +
-        '<div><span class="k">Last through</span><span class="v">' + (lastAt ? clockOfDay(lastAt) : '—') + '</span></div>' +
-        '<div><span class="k">' + projKey + '</span><span class="v">' + projTxt + '</span></div>' +
-        '<div><span class="k">Donuts</span><span class="v hi">' + (t.donuts || 0) + '</span></div>' +
+        KINDS.map(k => '<div><span class="k">' + SCORE[k].label + '</span><span class="v' +
+          ((t[k] || 0) ? ' hi' : '') + '">' + (t[k] || 0) + '</span></div>').join('') +
+        '<div><span class="k">Pts / hr</span><span class="v">' +
+          (isFinite(rate) ? rate.toFixed(1) : '&mdash;') + '</span></div>' +
+        '<div><span class="k">' + (isFinite(fin) ? 'Hit 50' : 'On 50 at') + '</span><span class="v">' +
+          (isFinite(fin) ? clockOfDay(fin) : (isFinite(proj) ? '~' + clockOfDay(proj) : '&mdash;')) + '</span></div>' +
       '</div>' +
-      '<div class="acts">' +
-        (done
-          ? '<span class="fin">Fifty loops. Go and sit down.</span>'
-          : (isMine
-              ? '<button class="act lap" data-act="lap">Lap done &mdash; ' + (t.laps + 1) + ' of ' + RACE.laps + '</button>'
-              : '<button class="act ghost" data-act="lap">+1 lap</button>')) +
-        '<button class="act alt" data-act="donut">+1 donut</button>' +
-        (isMine && t.laps > 0 ? '<button class="act ghost" data-act="undo">Undo lap</button>' : '') +
-        (isMine && (t.donuts || 0) > 0 ? '<button class="act ghost" data-act="undonut">Undo donut</button>' : '') +
-      '</div>' +
+      '<div class="acts">' + acts + '</div>' +
     '</article>';
 }
 
 function render() {
+  const over = winner();
   const sorted = sortTeams(store.teams);
-  const ordered = sorted.slice().sort((a, b) => {
-    const am = mine.includes(a.id) ? 0 : 1, bm = mine.includes(b.id) ? 0 : 1;
-    return am - bm;
-  });
+  const ordered = sorted.slice().sort((a, b) =>
+    (mine.includes(a.id) ? 0 : 1) - (mine.includes(b.id) ? 0 : 1));
   const posOf = {};
   sorted.forEach((t, i) => { posOf[t.id] = i + 1; });
 
   boardEl.innerHTML = ordered.length
-    ? ordered.map(t => rowHtml(t, posOf[t.id])).join('')
+    ? ordered.map(t => rowHtml(t, posOf[t.id], over)).join('')
     : '<div class="empty">No teams on the board yet. Open <b>Sign up</b> and put the first one on.</div>';
 
-  const totalKm = store.teams.reduce((s, t) => s + (t.laps || 0), 0);
-  const totalDonuts = store.teams.reduce((s, t) => s + (t.donuts || 0), 0);
-  $('#tKm').innerHTML = totalKm + '<small>KM</small>';
+  const tot = k => store.teams.reduce((s, t) => s + (t[k] || 0), 0);
+  const pts = store.teams.reduce((s, t) => s + pointsOf(t), 0);
+  $('#tPts').textContent = pts;
   $('#tTeams').textContent = store.teams.length;
-  $('#tDonuts').textContent = totalDonuts;
+  $('#tKm').innerHTML = tot('km') + '<small>KM</small>';
+  $('#tally').textContent = tot('beer') + ' beers  ·  ' + tot('donut') +
+    ' donuts  ·  ' + tot('wine') + ' bottles';
+
+  const w = $('#winline');
+  if (over) {
+    w.hidden = false;
+    w.innerHTML = '<b>Race over</b>' + esc(over.team.name) +
+      ' reached 50 points at ' + clockOfDay(over.at) + '. The board is closed.';
+  } else {
+    w.hidden = true;
+  }
 }
 
 boardEl.addEventListener('click', e => {
@@ -648,12 +708,12 @@ boardEl.addEventListener('click', e => {
   if (!btn) return;
   const id = btn.closest('.row').dataset.id;
   const act = btn.dataset.act;
+  if (act === 'claim') { claim(id); render(); return; }
   btn.disabled = true;
   const done = () => { btn.disabled = false; };
-  if (act === 'lap') { claim(id); logLap(id).then(done, done); }
-  else if (act === 'undo') undoLap(id).then(done, done);
-  else if (act === 'donut') logDonut(id, +1).then(done, done);
-  else if (act === 'undonut') logDonut(id, -1).then(done, done);
+  if (act === 'undo') undo(id).then(done, done);
+  else if (SCORE[act]) score(id, act).then(done, done);
+  else done();
 });
 
 /* ------------------------------------------------------------------ */
@@ -663,7 +723,7 @@ const startMs = Date.parse(RACE.startISO);
 function tickClock() {
   const d = Date.now() - startMs;
   const el = $('#tClock'), k = $('#kClock');
-  el.textContent = hms(Math.abs(d));
+  el.textContent = hms(d);
   if (k) k.textContent = d < 0 ? 'Starts in' : 'Race clock';
   el.style.color = d < 0 ? 'var(--muted)' : '';
 }
@@ -707,7 +767,7 @@ $('#signupForm').addEventListener('submit', async e => {
     errEl.hidden = false; return;
   }
   if (store.teams.some(t => t.name.toLowerCase() === name.toLowerCase())) {
-    errEl.textContent = 'That name is already on the board. Pick another one so the timing table can tell you apart.';
+    errEl.textContent = 'That name is already on the board. Pick another one so the table can tell you apart.';
     errEl.hidden = false; return;
   }
 
@@ -735,8 +795,8 @@ $('#signupForm').addEventListener('submit', async e => {
 function setBanner(html) {
   ['#mode', '#mode2'].forEach(sel => { const el = $(sel); if (el) el.innerHTML = html; });
 }
-const LIVE_MSG = '<b>Live board</b>Every phone on this link sees the same board. Sign up, then tap your own laps as you come through the arch.';
-const DEVICE_MSG = '<b>Device mode</b>Fully working, but the board lives on this device only — nothing is shared with other phones yet. Add a Firebase config at the top of the page source to make it live for everyone.<br>The four teams on the board are examples, so you can see race day. <button class="act ghost" id="clearDemo" style="margin-top:8px">Clear examples</button>';
+const LIVE_MSG = '<b>Live board</b>Every phone on this link sees the same board. Sign up, then tap your own score as you go.';
+const DEVICE_MSG = '<b>Device mode</b>Fully working, but the board lives on this device only — nothing is shared with other phones yet. Add a Firebase config at the top of the page source to make it live for everyone.<br>The four teams on the board are examples. <button class="act ghost" id="clearDemo" style="margin-top:10px">Clear examples</button>';
 
 document.addEventListener('click', e => {
   if (!e.target.closest('#clearDemo')) return;
@@ -745,7 +805,6 @@ document.addEventListener('click', e => {
   document.querySelectorAll('#clearDemo').forEach(b => b.remove());
   render();
 });
-
 
 /* ------------------------------------------------------------------ */
 /* boot                                                                */
@@ -761,7 +820,7 @@ store.onChange(render);
     } catch (err) {
       console.error('Firebase failed to start', err);
       store.mode = 'device';
-      setBanner('<b>Offline board</b>Could not reach the live board, so this device is keeping its own count. Laps are safe here — reload once you have signal.');
+      setBanner('<b>Offline board</b>Could not reach the live board, so this device is keeping its own count. What you tap is safe here — reload once you have signal.');
       deviceStore.start();
     }
   } else {
